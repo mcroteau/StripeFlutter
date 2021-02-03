@@ -63,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   var product;
   var plan;
 
-  final String STRIPE_KEY = "sk_test_pWfUa6jT1DnMsW2r7XhBBPHJ00CidZHHDm";
+  final String STRIPE_KEY = "";
   final String STRIPE_URL = "https://api.stripe.com/v1/";
 
   final String CUSTOMERS_ENDPOINT = "customers";
