@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 
 void main() {
   runApp(MyApp());
@@ -186,26 +187,34 @@ class _MyHomePageState extends State<MyHomePage> {
 
       showGlobalDialogNoOkay("Processing, please wait...", null);
 
-      var req = http.MultipartRequest('post', Uri.parse(STRIPE_URL + TOKENS_ENDPOINT));
+      var datas = {'card[number]': '4242424242424242', 'card[exp_month]': '10', 'card[exp_year]' : '2023', 'card[cvc]' : '123'};
+
+      var req = http.Request('post', Uri.parse(STRIPE_URL + TOKENS_ENDPOINT));
       req.headers['Authorization'] = "Bearer " + STRIPE_KEY;
-      req.headers['content-type'] = "application/x-www-form-urlencoded; charset=UTF-8";
-      req.headers['content-type'] = "text/plain; charset=UTF-8";
+      req.headers['Content-Type'] = "application/x-www-form-urlencoded; charset=UTF-8";
+//      req.headers['content-type'] = "text/plain; charset=UTF-8";
 
       print("content type " + req.headers['Content-Type']);
 
-      req.fields['credit_card'] = creditCard.text;
-      req.fields['exp_month'] = expMonth.text;
-      req.fields['exp_year'] = expYear.text;
-      req.fields['cvv'] = cvv.text;
+      Map<String, String> body = new HashMap();
+
+      body['card[number]'] = "4242424242424242";
+      body['card[exp_month]'] = "10";
+      body['card[exp_year]'] = "2023";
+      body['card[cvc]'] = "123";
+
+      req.bodyFields = body;
 
       var respBody;
 
       try {
+
         http.StreamedResponse resp = await req.send();
+        print("213");
         respBody = await resp.stream.bytesToString();
 
         print("response $respBody");
-        var token = jsonDecode(respBody.body.toString());
+        var token = jsonDecode(respBody.body);
 
         print("token : $token");
 
@@ -213,9 +222,8 @@ class _MyHomePageState extends State<MyHomePage> {
           processing = false;
         });
 
-      } catch (e) {
-        print("error $e");
-        processing = false;
+      } catch(e) {
+        print(e.toString());
       }
     }
 
