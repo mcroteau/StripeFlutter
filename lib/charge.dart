@@ -90,97 +90,154 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-              RaisedButton(
-                  child: Text("Generate Plans"),
-                  color: Colors.lightBlue,
-                  onPressed: save
+            Column(
+              children: <Widget>[
+                Text("Credit Card"),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "",
+                  ),
+                  controller: creditCard,
+                  keyboardType: TextInputType.number,
+                  maxLength: 16,
+                )
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Text("Exp Month"),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "",
+                  ),
+                  controller: expMonth,
+                  keyboardType: TextInputType.number,
+                  maxLength: 2,
+                )
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Text("Exp Year"),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "",
+                  ),
+                  controller: expYear,
+                  keyboardType: TextInputType.number,
+                  maxLength: 2,
+                )
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Text("Cvv"),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "",
+                  ),
+                  controller: cvv,
+                  keyboardType: TextInputType.number,
+                  maxLength: 3,
+                )
+              ],
+            ),
+            Column(
+              children: <Widget>[
+                Text("Email"),
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "",
+                  ),
+                  controller: email,
+                  keyboardType: TextInputType.emailAddress,
+                )
+              ],
+            ),
+            Container(
+              padding: EdgeInsets.fromLTRB(0, 10, 10, 0),
+              child: SizedBox(
+                height: 50,
+                child: RaisedButton(
+                  onPressed: () => process(),
+                  color: Colors.yellowAccent,
+                  child: new Text("Pay \$5", style: TextStyle(fontSize:17, fontWeight: FontWeight.w700, color: Colors.black)),
+                  padding: EdgeInsets.fromLTRB(49, 15, 49, 15),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(28.0),
+                      side: BorderSide(color: Colors.white, width: 3)
+                  ),
+                ),
               ),
-              RaisedButton(
-                  child: Text("Delete All Plans"),
-                  color: Colors.redAccent,
-                  onPressed: delete
-              )
-            ]
-          )
-       )
-      );
+              alignment: Alignment.topRight,
+            )
+          ],
+        ),
+
+      ),
+    );
   }
 
-  Future save() async {
+  Future process() async {
     print("processing");
+    creditCard.text = "4242424242424242";
+    expMonth.text = "07";
+    expYear.text = "2023";
+    cvv.text = "123";
 
     if (!processing) {
       setState(() {
         processing = true;
       });
 
-      showGlobalDialogNoOkay("Processing...", null);
-      var f = createProduct().then((data) => createPlan(data));
+      showGlobalDialogNoOkay("Processing, please wait...", null);
+      var f = createProduct().then((value) => createPlan(value));
       print("f : " + f.toString());
-    }
-  }
-
-  Future delete() async{
-    getPlans()
-        .then((data) => deletePlans(data))
-        .then((data) => getProducts(data))
-        .then((data) => deleteProducts(data));
-  }
-
-  Future getPlans() async{
-    Map<String, String> body = new HashMap();
-    return sendReq(PLANS_ENDPOINT, 'get', body);
-  }
-
-  Future deletePlans(data) async{
-    var plans = jsonDecode(data);
-    print("data" + plans.toString());
-    for(var plan in plans['data']){
-      String name = plan['id'];
-      print(name);
-      Map<String, String> body = new HashMap();
-      sendReq(PLANS_ENDPOINT + "/" + name, 'delete', body);
-    }
-  }
-
-
-  Future getProducts(data) async{
-    Map<String, String> body = new HashMap();
-    return sendReq(PRODUCTS_ENDPOINT, 'get', body);
-  }
-  Future deleteProducts(data) async{
-    var products = jsonDecode(data);
-    print("data" + products.toString());
-    for(var product in products['data']){
-      String name = product['id'];
-      print(name);
-      Map<String, String> body = new HashMap();
-      sendReq(PRODUCTS_ENDPOINT + "/" + name, 'delete', body);
     }
   }
 
   Future createProduct() async {
     Map<String, String> body = new HashMap();
     body['name'] = "MockProduct";
-    return sendReq(PRODUCTS_ENDPOINT, 'post', body);
+    return sendReq(PRODUCTS_ENDPOINT, body);
   }
 
-  Future createPlan(data) async {
-    print("create plan" + data);
-    var json = jsonDecode(data);
+  Future createPlan(value) async {
+    print("create plan" + value);
+    var json = jsonDecode(value);
     Map<String, String> body = new HashMap();
     body['amount'] = "500";
     body['interval'] = "month";
     body['currency'] = "usd";
     body['product'] = json['id'];
-    return sendReq(PLANS_ENDPOINT, 'post', body);
+    return sendReq(PLANS_ENDPOINT, body);
+  }
+
+  Future createToken() async {
+    Map<String, String> body = new HashMap();
+    body['card[number]'] = "4242424242424242";
+    body['card[exp_month]'] = "10";
+    body['card[exp_year]'] = "2023";
+    body['card[cvc]'] = "123";
+    return sendReq(TOKENS_ENDPOINT, body);
+  }
+
+  Future createCustomer(String value) async {
+    var token = jsonDecode(value);
+    print("token " + token.id);
+    Map<String, String> body = new HashMap();
+    body['customer[email]'] = "croteau.mike@gmail.com";
+    body['customer[source]'] = token['id'];
+    return sendReq(CUSTOMERS_ENDPOINT, body);
   }
 
 
-  Future sendReq(endpoint, method, body) async{
+  Future sendReq(endpoint, body) async{
+
     var respBody;
+
     try {
-      var req = http.Request(method, Uri.parse(STRIPE_URL + endpoint));
+      var req = http.Request('post', Uri.parse(STRIPE_URL + endpoint));
       req.headers['Authorization'] = "Bearer " + STRIPE_KEY;
       req.headers['Content-Type'] = "application/x-www-form-urlencoded; charset=UTF-8";
       req.bodyFields = body;
