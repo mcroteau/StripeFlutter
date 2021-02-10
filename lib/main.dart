@@ -125,17 +125,25 @@ class _MyHomePageState extends State<MyHomePage> {
     if(!processing){
       setProcessing(true);
       Map<String, String> body = new HashMap();
-      sendReq(SUBSCRIPTIONS_ENDPOINT + "/" + subscriptionId, 'delete', body).then((data) => displayCanceled(data));
+      sendReq(SUBSCRIPTIONS_ENDPOINT + "/" + subscriptionId, 'delete', body)
+          .then((data) => deleteCustomer(data));
     }
   }
 
-  void displayCanceled(data){
+  Future deleteCustomer(data) async{
     var json = jsonDecode(data);
+    customerId = json['customer'];
+    Map<String, String> body = new HashMap();
+    sendReq(CUSTOMERS_ENDPOINT + "/" + customerId, 'delete', body)
+      .then((data) => displayCanceled(json, data));
+  }
+
+  void displayCanceled(json, data){
+    var customerJson = jsonDecode(data);
     String content = "Successfully canceled @ " + json['canceled_at'].toString();
     showGlobalDialogNoOkay(content, null);
     setProcessing(false);
   }
-
 
   Future subscribe() async{
     if (!processing) {
