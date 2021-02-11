@@ -90,12 +90,12 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-              RaisedButton(
-                  child: Text("Generate Plan"),
-                  color: Colors.blue,
-                  textColor: Colors.white,
-                  onPressed: save
-              ),
+//              RaisedButton(
+//                  child: Text("Generate Plan"),
+//                  color: Colors.blue,
+//                  textColor: Colors.white,
+//                  onPressed: save
+//              ),
               RaisedButton(
                   child: Text("Subscribe"),
                   color: Colors.green,
