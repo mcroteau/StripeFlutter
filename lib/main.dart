@@ -181,7 +181,7 @@ plan_It8CpRuJWL56O1
     customerId = json['id'];
     Map<String, String> body = new HashMap();
     body['customer'] = json['id'];;
-    body['items[0][plan]'] = planId;
+    body['items[0][price]'] = "price_1IJUtwFMDPZBpdm3UcXZIHyr";//TODO:replace with your price id, apologies...
     sendReq(SUBSCRIPTIONS_ENDPOINT, 'post', body)
         .then((data) => displayData(data));
   }
