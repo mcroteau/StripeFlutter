@@ -108,12 +108,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   textColor: Colors.white,
                   onPressed: cancel
               ),
-              RaisedButton(
-                  child: Text("Delete Plans"),
-                  color: Colors.red,
-                  textColor: Colors.white,
-                  onPressed: delete
-              ),
+//              RaisedButton(
+//                  child: Text("Delete Plans"),
+//                  color: Colors.red,
+//                  textColor: Colors.white,
+//                  onPressed: delete
+//              ),
             ]
           )
        )
